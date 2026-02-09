@@ -69,12 +69,14 @@ test('merge()', function (t) {
     );
 
     t.test('with overflow objects (from arrayLimit)', function (st) {
+        // arrayLimit is max index, so with limit 0, max index 0 is allowed (1 element)
+        // To create overflow, need 2+ elements with limit 0, or 3+ with limit 1, etc.
         st.test('merges primitive into overflow object at next index', function (s2t) {
-            // Create an overflow object via combine
-            var overflow = utils.combine(['a'], 'b', 1, false);
+            // Create an overflow object via combine: 3 elements (indices 0-2) with limit 0
+            var overflow = utils.combine(['a', 'b'], 'c', 0, false);
             s2t.ok(utils.isOverflow(overflow), 'overflow object is marked');
-            var merged = utils.merge(overflow, 'c');
-            s2t.deepEqual(merged, { 0: 'a', 1: 'b', 2: 'c' }, 'adds primitive at next numeric index');
+            var merged = utils.merge(overflow, 'd');
+            s2t.deepEqual(merged, { 0: 'a', 1: 'b', 2: 'c', 3: 'd' }, 'adds primitive at next numeric index');
             s2t.end();
         });
 
@@ -94,21 +96,21 @@ test('merge()', function (t) {
         });
 
         st.test('merges overflow object into primitive', function (s2t) {
-            // Create an overflow object via combine
-            var overflow = utils.combine([], 'b', 0, false);
+            // Create an overflow object via combine: 2 elements (indices 0-1) with limit 0
+            var overflow = utils.combine(['a'], 'b', 0, false);
             s2t.ok(utils.isOverflow(overflow), 'overflow object is marked');
-            var merged = utils.merge('a', overflow);
+            var merged = utils.merge('c', overflow);
             s2t.ok(utils.isOverflow(merged), 'result is also marked as overflow');
-            s2t.deepEqual(merged, { 0: 'a', 1: 'b' }, 'creates object with primitive at 0, source values shifted');
+            s2t.deepEqual(merged, { 0: 'c', 1: 'a', 2: 'b' }, 'creates object with primitive at 0, source values shifted');
             s2t.end();
         });
 
         st.test('merges overflow object with multiple values into primitive', function (s2t) {
-            // Create an overflow object via combine
-            var overflow = utils.combine(['b'], 'c', 1, false);
+            // Create an overflow object via combine: 3 elements (indices 0-2) with limit 0
+            var overflow = utils.combine(['b', 'c'], 'd', 0, false);
             s2t.ok(utils.isOverflow(overflow), 'overflow object is marked');
             var merged = utils.merge('a', overflow);
-            s2t.deepEqual(merged, { 0: 'a', 1: 'b', 2: 'c' }, 'shifts all source indices by 1');
+            s2t.deepEqual(merged, { 0: 'a', 1: 'b', 2: 'c', 3: 'd' }, 'shifts all source indices by 1');
             s2t.end();
         });
 
@@ -194,30 +196,43 @@ test('combine()', function (t) {
             s2t.end();
         });
 
+        // arrayLimit is max index allowed, so with limit 3, indices 0-3 (4 elements) are allowed
         st.test('exactly at the limit stays as array', function (s2t) {
-            var combined = utils.combine(['a', 'b'], 'c', 3, false);
-            s2t.deepEqual(combined, ['a', 'b', 'c'], 'stays as array when exactly at limit');
+            // 4 elements (indices 0-3), max index 3 = limit 3
+            var combined = utils.combine(['a', 'b', 'c'], 'd', 3, false);
+            s2t.deepEqual(combined, ['a', 'b', 'c', 'd'], 'stays as array when max index equals limit');
             s2t.ok(Array.isArray(combined), 'result is an array');
             s2t.end();
         });
 
         st.test('over the limit', function (s2t) {
-            var combined = utils.combine(['a', 'b', 'c'], 'd', 3, false);
-            s2t.deepEqual(combined, { 0: 'a', 1: 'b', 2: 'c', 3: 'd' }, 'converts to object when over limit');
+            // 5 elements (indices 0-4), max index 4 > limit 3
+            var combined = utils.combine(['a', 'b', 'c', 'd'], 'e', 3, false);
+            s2t.deepEqual(combined, { 0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e' }, 'converts to object when over limit');
             s2t.notOk(Array.isArray(combined), 'result is not an array');
             s2t.end();
         });
 
         st.test('with arrayLimit 0', function (s2t) {
+            // 1 element (index 0), max index 0 = limit 0, should stay as array
             var combined = utils.combine([], 'a', 0, false);
-            s2t.deepEqual(combined, { 0: 'a' }, 'converts single element to object with arrayLimit 0');
+            s2t.deepEqual(combined, ['a'], 'stays as array with arrayLimit 0 and single element');
+            s2t.ok(Array.isArray(combined), 'result is an array');
+            s2t.end();
+        });
+
+        st.test('with arrayLimit 0 and two elements converts to object', function (s2t) {
+            // 2 elements (indices 0-1), max index 1 > limit 0
+            var combined = utils.combine(['a'], 'b', 0, false);
+            s2t.deepEqual(combined, { 0: 'a', 1: 'b' }, 'converts to object when max index exceeds limit');
             s2t.notOk(Array.isArray(combined), 'result is not an array');
             s2t.end();
         });
 
         st.test('with plainObjects option', function (s2t) {
-            var combined = utils.combine(['a'], 'b', 1, true);
-            var expected = { __proto__: null, 0: 'a', 1: 'b' };
+            // 3 elements (indices 0-2), max index 2 > limit 1
+            var combined = utils.combine(['a', 'b'], 'c', 1, true);
+            var expected = { __proto__: null, 0: 'a', 1: 'b', 2: 'c' };
             s2t.deepEqual(combined, expected, 'converts to object with null prototype');
             s2t.equal(Object.getPrototypeOf(combined), null, 'result has null prototype when plainObjects is true');
             s2t.end();
@@ -228,13 +243,13 @@ test('combine()', function (t) {
 
     t.test('with existing overflow object', function (st) {
         st.test('adds to existing overflow object at next index', function (s2t) {
-            // Create overflow object first via combine
-            var overflow = utils.combine(['a'], 'b', 1, false);
+            // Create overflow object first via combine: 3 elements (indices 0-2) with limit 0
+            var overflow = utils.combine(['a', 'b'], 'c', 0, false);
             s2t.ok(utils.isOverflow(overflow), 'initial object is marked as overflow');
 
-            var combined = utils.combine(overflow, 'c', 10, false);
+            var combined = utils.combine(overflow, 'd', 10, false);
             s2t.equal(combined, overflow, 'returns the same object (mutated)');
-            s2t.deepEqual(combined, { 0: 'a', 1: 'b', 2: 'c' }, 'adds value at next numeric index');
+            s2t.deepEqual(combined, { 0: 'a', 1: 'b', 2: 'c', 3: 'd' }, 'adds value at next numeric index');
             s2t.end();
         });
 
