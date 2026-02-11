@@ -196,41 +196,42 @@ test('combine()', function (t) {
             s2t.end();
         });
 
-        // arrayLimit is max index allowed, so with limit 3, indices 0-3 (4 elements) are allowed
         st.test('exactly at the limit stays as array', function (s2t) {
-            // 4 elements (indices 0-3), max index 3 = limit 3
-            var combined = utils.combine(['a', 'b', 'c'], 'd', 3, false);
-            s2t.deepEqual(combined, ['a', 'b', 'c', 'd'], 'stays as array when max index equals limit');
+            var combined = utils.combine(['a', 'b'], 'c', 3, false);
+            s2t.deepEqual(combined, ['a', 'b', 'c'], 'stays as array when count equals limit');
             s2t.ok(Array.isArray(combined), 'result is an array');
             s2t.end();
         });
 
         st.test('over the limit', function (s2t) {
-            // 5 elements (indices 0-4), max index 4 > limit 3
-            var combined = utils.combine(['a', 'b', 'c', 'd'], 'e', 3, false);
-            s2t.deepEqual(combined, { 0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e' }, 'converts to object when over limit');
+            var combined = utils.combine(['a', 'b', 'c'], 'd', 3, false);
+            s2t.deepEqual(combined, { 0: 'a', 1: 'b', 2: 'c', 3: 'd' }, 'converts to object when over limit');
             s2t.notOk(Array.isArray(combined), 'result is not an array');
             s2t.end();
         });
 
-        st.test('with arrayLimit 0', function (s2t) {
-            // 1 element (index 0), max index 0 = limit 0, should stay as array
-            var combined = utils.combine([], 'a', 0, false);
-            s2t.deepEqual(combined, ['a'], 'stays as array with arrayLimit 0 and single element');
+        st.test('with arrayLimit 1', function (s2t) {
+            var combined = utils.combine([], 'a', 1, false);
+            s2t.deepEqual(combined, ['a'], 'stays as array when count equals limit');
             s2t.ok(Array.isArray(combined), 'result is an array');
             s2t.end();
         });
 
+        st.test('with arrayLimit 0 converts single element to object', function (s2t) {
+            var combined = utils.combine([], 'a', 0, false);
+            s2t.deepEqual(combined, { 0: 'a' }, 'converts to object when count exceeds limit');
+            s2t.notOk(Array.isArray(combined), 'result is not an array');
+            s2t.end();
+        });
+
         st.test('with arrayLimit 0 and two elements converts to object', function (s2t) {
-            // 2 elements (indices 0-1), max index 1 > limit 0
             var combined = utils.combine(['a'], 'b', 0, false);
-            s2t.deepEqual(combined, { 0: 'a', 1: 'b' }, 'converts to object when max index exceeds limit');
+            s2t.deepEqual(combined, { 0: 'a', 1: 'b' }, 'converts to object when count exceeds limit');
             s2t.notOk(Array.isArray(combined), 'result is not an array');
             s2t.end();
         });
 
         st.test('with plainObjects option', function (s2t) {
-            // 3 elements (indices 0-2), max index 2 > limit 1
             var combined = utils.combine(['a', 'b'], 'c', 1, true);
             var expected = { __proto__: null, 0: 'a', 1: 'b', 2: 'c' };
             s2t.deepEqual(combined, expected, 'converts to object with null prototype');

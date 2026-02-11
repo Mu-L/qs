@@ -261,11 +261,11 @@ test('parse()', function (t) {
     });
 
     t.test('limits specific array indices to arrayLimit', function (st) {
-        st.deepEqual(qs.parse('a[20]=a', { arrayLimit: 20 }), { a: ['a'] });
-        st.deepEqual(qs.parse('a[21]=a', { arrayLimit: 20 }), { a: { 21: 'a' } });
+        st.deepEqual(qs.parse('a[19]=a', { arrayLimit: 20 }), { a: ['a'] });
+        st.deepEqual(qs.parse('a[20]=a', { arrayLimit: 20 }), { a: { 20: 'a' } });
 
-        st.deepEqual(qs.parse('a[20]=a'), { a: ['a'] });
-        st.deepEqual(qs.parse('a[21]=a'), { a: { 21: 'a' } });
+        st.deepEqual(qs.parse('a[19]=a'), { a: ['a'] });
+        st.deepEqual(qs.parse('a[20]=a'), { a: { 20: 'a' } });
         st.end();
     });
 
@@ -483,7 +483,7 @@ test('parse()', function (t) {
 
     t.test('allows overriding array limit', function (st) {
         st.deepEqual(qs.parse('a[0]=b', { arrayLimit: -1 }), { a: { 0: 'b' } });
-        st.deepEqual(qs.parse('a[0]=b', { arrayLimit: 0 }), { a: ['b'] });
+        st.deepEqual(qs.parse('a[0]=b', { arrayLimit: 0 }), { a: { 0: 'b' } });
 
         st.deepEqual(qs.parse('a[-1]=b', { arrayLimit: -1 }), { a: { '-1': 'b' } });
         st.deepEqual(qs.parse('a[-1]=b', { arrayLimit: 0 }), { a: { '-1': 'b' } });
@@ -1118,22 +1118,22 @@ test('parse()', function (t) {
         });
 
         st.test('throws error when array limit exceeded', function (sst) {
-            // 5 elements (indices 0-4), max index 4 > limit 3
+            // 4 elements exceeds limit of 3
             sst['throws'](
                 function () {
-                    qs.parse('a[]=1&a[]=2&a[]=3&a[]=4&a[]=5', { arrayLimit: 3, throwOnLimitExceeded: true });
+                    qs.parse('a[]=1&a[]=2&a[]=3&a[]=4', { arrayLimit: 3, throwOnLimitExceeded: true });
                 },
-                new RangeError('Array limit exceeded. Only 4 elements allowed in an array.'),
+                new RangeError('Array limit exceeded. Only 3 elements allowed in an array.'),
                 'throws error when array limit is exceeded'
             );
             sst.end();
         });
 
         st.test('does not throw when at limit', function (sst) {
-            // 4 elements (indices 0-3), max index 3 = limit 3, should not throw
-            var result = qs.parse('a[]=1&a[]=2&a[]=3&a[]=4', { arrayLimit: 3, throwOnLimitExceeded: true });
+            // 3 elements = limit of 3, should not throw
+            var result = qs.parse('a[]=1&a[]=2&a[]=3', { arrayLimit: 3, throwOnLimitExceeded: true });
             sst.ok(Array.isArray(result.a), 'result is an array');
-            sst.deepEqual(result.a, ['1', '2', '3', '4'], 'all values present');
+            sst.deepEqual(result.a, ['1', '2', '3'], 'all values present');
             sst.end();
         });
 
@@ -1347,36 +1347,36 @@ test('DOS', function (t) {
 });
 
 test('arrayLimit boundary conditions', function (t) {
-    // arrayLimit is about max index, not length. With arrayLimit: 3, indices 0-3 are allowed (4 elements)
+    // arrayLimit is the max number of elements allowed in an array
     t.test('exactly at the limit stays as array', function (st) {
-        // 4 elements (indices 0-3), max index 3 = limit 3
-        var result = qs.parse('a[]=1&a[]=2&a[]=3&a[]=4', { arrayLimit: 3 });
-        st.ok(Array.isArray(result.a), 'result is an array when max index equals limit');
-        st.deepEqual(result.a, ['1', '2', '3', '4'], 'all values present');
+        // 3 elements = limit of 3
+        var result = qs.parse('a[]=1&a[]=2&a[]=3', { arrayLimit: 3 });
+        st.ok(Array.isArray(result.a), 'result is an array when count equals limit');
+        st.deepEqual(result.a, ['1', '2', '3'], 'all values present');
         st.end();
     });
 
     t.test('one over the limit converts to object', function (st) {
-        // 5 elements (indices 0-4), max index 4 > limit 3
-        var result = qs.parse('a[]=1&a[]=2&a[]=3&a[]=4&a[]=5', { arrayLimit: 3 });
+        // 4 elements exceeds limit of 3
+        var result = qs.parse('a[]=1&a[]=2&a[]=3&a[]=4', { arrayLimit: 3 });
         st.notOk(Array.isArray(result.a), 'result is not an array when over limit');
-        st.deepEqual(result.a, { 0: '1', 1: '2', 2: '3', 3: '4', 4: '5' }, 'all values preserved as object');
+        st.deepEqual(result.a, { 0: '1', 1: '2', 2: '3', 3: '4' }, 'all values preserved as object');
         st.end();
     });
 
-    t.test('arrayLimit 1 with two values', function (st) {
-        // 2 elements (indices 0-1), max index 1 = limit 1, should be array
+    t.test('arrayLimit 1 with one value', function (st) {
+        // 1 element = limit of 1
+        var result = qs.parse('a[]=1', { arrayLimit: 1 });
+        st.ok(Array.isArray(result.a), 'result is an array when count equals limit');
+        st.deepEqual(result.a, ['1'], 'value preserved as array');
+        st.end();
+    });
+
+    t.test('arrayLimit 1 with two values converts to object', function (st) {
+        // 2 elements exceeds limit of 1
         var result = qs.parse('a[]=1&a[]=2', { arrayLimit: 1 });
-        st.ok(Array.isArray(result.a), 'result is an array when max index equals limit');
-        st.deepEqual(result.a, ['1', '2'], 'both values preserved as array');
-        st.end();
-    });
-
-    t.test('arrayLimit 1 with three values converts to object', function (st) {
-        // 3 elements (indices 0-2), max index 2 > limit 1
-        var result = qs.parse('a[]=1&a[]=2&a[]=3', { arrayLimit: 1 });
         st.notOk(Array.isArray(result.a), 'result is not an array');
-        st.deepEqual(result.a, { 0: '1', 1: '2', 2: '3' }, 'all values preserved as object');
+        st.deepEqual(result.a, { 0: '1', 1: '2' }, 'all values preserved as object');
         st.end();
     });
 
