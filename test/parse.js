@@ -1144,6 +1144,40 @@ test('parse()', function (t) {
             sst.end();
         });
 
+        st.test('throws error when indexed notation exceeds arrayLimit with throwOnLimitExceeded', function (sst) {
+            sst['throws'](
+                function () {
+                    qs.parse('a[1001]=b', { arrayLimit: 1000, throwOnLimitExceeded: true });
+                },
+                new RangeError('Array limit exceeded. Only 1000 elements allowed in an array.'),
+                'throws error for a single index exceeding arrayLimit'
+            );
+
+            sst['throws'](
+                function () {
+                    qs.parse('a[0]=1&a[1]=2&a[2]=3&a[10]=4', { arrayLimit: 6, throwOnLimitExceeded: true, allowSparse: true });
+                },
+                new RangeError('Array limit exceeded. Only 6 elements allowed in an array.'),
+                'throws error when a sparse index exceeds arrayLimit'
+            );
+
+            sst.end();
+        });
+
+        st.test('does not throw for indexed notation within arrayLimit with throwOnLimitExceeded', function (sst) {
+            var result = qs.parse('a[4]=b', { arrayLimit: 5, throwOnLimitExceeded: true, allowSparse: true });
+            sst.ok(Array.isArray(result.a), 'result is an array');
+            sst.equal(result.a.length, 5, 'array has correct length');
+            sst.equal(result.a[4], 'b', 'value at index 4 is correct');
+            sst.end();
+        });
+
+        st.test('silently converts to object for indexed notation exceeding arrayLimit without throwOnLimitExceeded', function (sst) {
+            var result = qs.parse('a[1001]=b', { arrayLimit: 1000 });
+            sst.deepEqual(result, { a: { 1001: 'b' } }, 'converts to object without throwing');
+            sst.end();
+        });
+
         st.end();
     });
 
