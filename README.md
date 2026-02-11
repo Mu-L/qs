@@ -513,6 +513,12 @@ The query string may optionally be prepended with a question mark:
 assert.equal(qs.stringify({ a: 'b', c: 'd' }, { addQueryPrefix: true }), '?a=b&c=d');
 ```
 
+Note that when the output is an empty string, the prefix will not be added:
+
+```javascript
+assert.equal(qs.stringify({}, { addQueryPrefix: true }), '');
+```
+
 The delimiter may be overridden with stringify as well:
 
 ```javascript
