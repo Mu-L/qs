@@ -1,3 +1,10 @@
+## **6.4.2**
+- [Robustness] avoid `.push`, use `void`
+- [readme] clarify `parseArrays` and `arrayLimit` documentation (#543)
+- [readme] replace runkit CI badge with shields.io check-runs badge
+- [readme] replace travis CI badge with shields.io check-runs badge
+- [actions] fix rebase workflow permissions
+
 ## **6.4.1**
 - [Fix] `parse`: ignore `__proto__` keys (#428)
 - [Fix] fix for an impossible situation: when the formatter is called with a non-string value

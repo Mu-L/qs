@@ -52,7 +52,7 @@ var defaults = {
 
 var parseValues = function parseQueryStringValues(str, options) {
     var obj = {};
-    var parts = str.split(options.delimiter, options.parameterLimit === Infinity ? undefined : options.parameterLimit);
+    var parts = str.split(options.delimiter, options.parameterLimit === Infinity ? void undefined : options.parameterLimit);
 
     for (var i = 0; i < parts.length; ++i) {
         var part = parts[i];
@@ -139,7 +139,7 @@ var parseKeys = function parseQueryStringKeys(givenKey, val, options) {
             }
         }
 
-        keys.push(parent);
+        keys[keys.length] = parent;
     }
 
     // Loop through children appending to the array until we hit depth
@@ -152,13 +152,13 @@ var parseKeys = function parseQueryStringKeys(givenKey, val, options) {
                 return;
             }
         }
-        keys.push(segment[1]);
+        keys[keys.length] = segment[1];
     }
 
     // If there's a remainder, just add whatever is left
 
     if (segment) {
-        keys.push('[' + key.slice(segment.index) + ']');
+        keys[keys.length] = '[' + key.slice(segment.index + ']');
     }
 
     return parseObject(keys, val, options);
@@ -425,7 +425,7 @@ var has = Object.prototype.hasOwnProperty;
 var hexTable = (function () {
     var array = [];
     for (var i = 0; i < 256; ++i) {
-        array.push('%' + ((i < 16 ? '0' : '') + i.toString(16)).toUpperCase());
+        array[array.length] = '%' + ((i < 16 ? '0' : '' + i.toString(16)).toUpperCase());
     }
 
     return array;
@@ -449,7 +449,7 @@ exports.merge = function (target, source, options) {
 
     if (typeof source !== 'object') {
         if (Array.isArray(target)) {
-            target.push(source);
+            target[target.length] = source;
         } else if (target && typeof target === 'object') {
             if ((options && (options.plainObjects || options.allowPrototypes)) || !has.call(Object.prototype, source)) {
                 target[source] = true;
@@ -476,7 +476,7 @@ exports.merge = function (target, source, options) {
                 if (target[i] && typeof target[i] === 'object') {
                     target[i] = exports.merge(target[i], item, options);
                 } else {
-                    target.push(item);
+                    target[target.length] = item;
                 }
             } else {
                 target[i] = item;
@@ -569,16 +569,16 @@ exports.compact = function (obj, references) {
         return refs[lookup];
     }
 
-    refs.push(obj);
+    refs[refs.length] = obj;
 
     if (Array.isArray(obj)) {
         var compacted = [];
 
         for (var i = 0; i < obj.length; ++i) {
             if (obj[i] && typeof obj[i] === 'object') {
-                compacted.push(exports.compact(obj[i], refs));
+                compacted[compacted.length] = exports.compact(obj[i], refs);
             } else if (typeof obj[i] !== 'undefined') {
-                compacted.push(obj[i]);
+                compacted[compacted.length] = obj[i];
             }
         }
 
