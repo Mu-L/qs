@@ -168,7 +168,7 @@ var withIndexedEmptyString = qs.parse('a[0]=b&a[1]=&a[2]=c');
 assert.deepEqual(withIndexedEmptyString, { a: ['b', '', 'c'] });
 ```
 
-**qs** will also limit specifying indices in an array to a maximum index of `20`. Any array members with an index of greater than `20` will
+**qs** will also limit arrays to a maximum of `20` elements. Any array members with an index of `20` or greater will
 instead be converted to an object with the index as the key:
 
 ```javascript
@@ -183,7 +183,7 @@ var withArrayLimit = qs.parse('a[1]=b', { arrayLimit: 0 });
 assert.deepEqual(withArrayLimit, { a: { '1': 'b' } });
 ```
 
-To disable array parsing entirely, set `parseArrays` to `false`.
+To prevent array syntax (`a[]`, `a[0]`) from being parsed as arrays, set `parseArrays` to `false`.
 
 ```javascript
 var noParsingArrays = qs.parse('a[]=b', { parseArrays: false });
