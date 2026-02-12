@@ -1,3 +1,10 @@
+## **6.9.8**
+- [Robustness] avoid `.push`, use `void`
+- [readme] clarify `parseArrays` and `arrayLimit` documentation (#543)
+- [readme] document that `addQueryPrefix` does not add `?` to empty output (#418)
+- [readme] replace runkit CI badge with shields.io check-runs badge
+- [actions] fix rebase workflow permissions
+
 ## **6.9.7**
 - [Fix] `parse`: ignore `__proto__` keys (#428)
 - [Fix] `stringify`: avoid encoding arrayformat comma when `encodeValuesOnly = true` (#424)
