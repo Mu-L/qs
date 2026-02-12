@@ -18,6 +18,12 @@ test('stringify()', function (t) {
         st.end();
     });
 
+    t.test('correctly encodes low-byte characters', function (st) {
+        st.equal(qs.stringify({ a: String.fromCharCode(1) }), 'a=%01', 'encodes 0x01');
+        st.equal(qs.stringify({ a: String.fromCharCode(15) }), 'a=%0F', 'encodes 0x0F');
+        st.end();
+    });
+
     t.test('stringifies a nested object', function (st) {
         st.equal(qs.stringify({ a: { b: 'c' } }), 'a%5Bb%5D=c');
         st.equal(qs.stringify({ a: { b: { c: { d: 'e' } } } }), 'a%5Bb%5D%5Bc%5D%5Bd%5D=e');
