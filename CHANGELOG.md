@@ -1,3 +1,10 @@
+## **6.12.4**
+- [Robustness] avoid `.push`, use `void`
+- [readme] clarify `parseArrays` and `arrayLimit` documentation (#543)
+- [readme] document that `addQueryPrefix` does not add `?` to empty output (#418)
+- [readme] replace runkit CI badge with shields.io check-runs badge
+- [actions] fix rebase workflow permissions
+
 ## **6.12.3**
 - [Fix] `parse`: properly account for `strictNullHandling` when `allowEmptyArrays`
 - [meta] fix changelog indentation
