@@ -30,7 +30,7 @@ var defaults = {
 
 var parseValues = function parseValues(str, options) {
     var obj = {};
-    var parts = str.split(options.delimiter, options.parameterLimit === Infinity ? undefined : options.parameterLimit);
+    var parts = str.split(options.delimiter, options.parameterLimit === Infinity ? void undefined : options.parameterLimit);
 
     for (var i = 0; i < parts.length; ++i) {
         var part = parts[i];
@@ -117,7 +117,7 @@ var parseKeys = function parseKeys(givenKey, val, options) {
             }
         }
 
-        keys.push(parent);
+        keys[keys.length] = parent;
     }
 
     // Loop through children appending to the array until we hit depth
@@ -130,13 +130,13 @@ var parseKeys = function parseKeys(givenKey, val, options) {
                 return;
             }
         }
-        keys.push(segment[1]);
+        keys[keys.length] = segment[1];
     }
 
     // If there's a remainder, just add whatever is left
 
     if (segment) {
-        keys.push('[' + key.slice(segment.index) + ']');
+        keys[keys.length] = '[' + key.slice(segment.index + ']');
     }
 
     return parseObject(keys, val, options);
@@ -406,7 +406,7 @@ exports.merge = function merge(target, source, options) {
 
     if (typeof source !== 'object') {
         if (isArray(target)) {
-            target.push(source);
+            target[target.length] = source;
         } else if (target && typeof target === 'object') {
             if ((options && (options.plainObjects || options.allowPrototypes)) || !has.call(Object.prototype, source)) {
                 target[source] = true;
@@ -434,7 +434,7 @@ exports.merge = function merge(target, source, options) {
                 if (targetItem && typeof targetItem === 'object' && item && typeof item === 'object') {
                     target[i] = merge(targetItem, item, options);
                 } else {
-                    target.push(item);
+                    target[target.length] = item;
                 }
             } else {
                 target[i] = item;
@@ -527,16 +527,16 @@ exports.compact = function (obj, references) {
         return refs[lookup];
     }
 
-    refs.push(obj);
+    refs[refs.length] = obj;
 
     if (isArray(obj)) {
         var compacted = [];
 
         for (var i = 0; i < obj.length; ++i) {
             if (obj[i] && typeof obj[i] === 'object') {
-                compacted.push(exports.compact(obj[i], refs));
+                compacted[compacted.length] = exports.compact(obj[i], refs);
             } else if (typeof obj[i] !== 'undefined') {
-                compacted.push(obj[i]);
+                compacted[compacted.length] = obj[i];
             }
         }
 

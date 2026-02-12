@@ -1,3 +1,9 @@
+## **6.2.5**
+- [Robustness] avoid `.push`, use `void`
+- [readme] clarify `parseArrays` and `arrayLimit` documentation (#543)
+- [readme] replace travis CI badge with shields.io check-runs badge
+- [actions] fix rebase workflow permissions
+
 ## **6.2.4**
 - [Fix] `parse`: ignore `__proto__` keys (#428)
 - [Fix] `utils.merge`: avoid a crash with a null target and an array source
