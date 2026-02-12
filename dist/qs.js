@@ -82,7 +82,7 @@ var charsetSentinel = 'utf8=%E2%9C%93'; // encodeURIComponent('✓')
 var parseValues = function parseQueryStringValues(str, options) {
     var obj = {};
     var cleanStr = options.ignoreQueryPrefix ? str.replace(/^\?/, '') : str;
-    var limit = options.parameterLimit === Infinity ? undefined : options.parameterLimit;
+    var limit = options.parameterLimit === Infinity ? void undefined : options.parameterLimit;
     var parts = cleanStr.split(options.delimiter, limit);
     var skipIndex = -1; // Keep track of where the utf8 sentinel was found
     var i;
@@ -197,7 +197,7 @@ var parseKeys = function parseQueryStringKeys(givenKey, val, options) {
             }
         }
 
-        keys.push(parent);
+        keys[keys.length] = parent;
     }
 
     // Loop through children appending to the array until we hit depth
@@ -210,13 +210,13 @@ var parseKeys = function parseQueryStringKeys(givenKey, val, options) {
                 return;
             }
         }
-        keys.push(segment[1]);
+        keys[keys.length] = segment[1];
     }
 
     // If there's a remainder, just add whatever is left
 
     if (segment) {
-        keys.push('[' + key.slice(segment.index) + ']');
+        keys[keys.length] = '[' + key.slice(segment.index + ']');
     }
 
     return parseObject(keys, val, options);
@@ -555,7 +555,7 @@ var isArray = Array.isArray;
 var hexTable = (function () {
     var array = [];
     for (var i = 0; i < 256; ++i) {
-        array.push('%' + ((i < 16 ? '0' : '') + i.toString(16)).toUpperCase());
+        array[array.length] = '%' + ((i < 16 ? '0' : '' + i.toString(16)).toUpperCase());
     }
 
     return array;
@@ -571,7 +571,7 @@ var compactQueue = function compactQueue(queue) {
 
             for (var j = 0; j < obj.length; ++j) {
                 if (typeof obj[j] !== 'undefined') {
-                    compacted.push(obj[j]);
+                    compacted[compacted.length] = obj[j];
                 }
             }
 
@@ -598,7 +598,7 @@ var merge = function merge(target, source, options) {
 
     if (typeof source !== 'object') {
         if (isArray(target)) {
-            target.push(source);
+            target[target.length] = source;
         } else if (target && typeof target === 'object') {
             if ((options && (options.plainObjects || options.allowPrototypes)) || !has.call(Object.prototype, source)) {
                 target[source] = true;
@@ -626,7 +626,7 @@ var merge = function merge(target, source, options) {
                 if (targetItem && typeof targetItem === 'object' && item && typeof item === 'object') {
                     target[i] = merge(targetItem, item, options);
                 } else {
-                    target.push(item);
+                    target[target.length] = item;
                 }
             } else {
                 target[i] = item;
@@ -739,8 +739,8 @@ var compact = function compact(value) {
             var key = keys[j];
             var val = obj[key];
             if (typeof val === 'object' && val !== null && refs.indexOf(val) === -1) {
-                queue.push({ obj: obj, prop: key });
-                refs.push(val);
+                queue[queue.length] = { obj: obj, prop: key };
+                refs[refs.length] = val;
             }
         }
     }
