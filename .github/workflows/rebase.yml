@@ -2,6 +2,10 @@ name: Automatic Rebase
 
 on: [pull_request]
 
+permissions:
+  contents: write  # for ljharb/rebase to push code to rebase
+  pull-requests: read  # for ljharb/rebase to get info about PR
+
 jobs:
   _:
     name: "Automatic Rebase"
