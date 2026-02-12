@@ -137,7 +137,7 @@ internals.parseKeys = function (givenKey, val, options) {
     // If there's a remainder, just add whatever is left
 
     if (segment) {
-        keys[keys.length] = '[' + key.slice(segment.index + ']');
+        keys[keys.length] = '[' + key.slice(segment.index) + ']';
     }
 
     return internals.parseObject(keys, val, options);
