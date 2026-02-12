@@ -1,3 +1,7 @@
+## **6.10.7**
+- [Fix] fix regressions from robustness refactor
+- [actions] update reusable workflows
+
 ## **6.10.6**
 - [Robustness] avoid `.push`, use `void`
 - [readme] clarify `parseArrays` and `arrayLimit` documentation (#543)
