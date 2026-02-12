@@ -158,7 +158,7 @@ var parseKeys = function parseQueryStringKeys(givenKey, val, options) {
     // If there's a remainder, just add whatever is left
 
     if (segment) {
-        keys[keys.length] = '[' + key.slice(segment.index + ']');
+        keys[keys.length] = '[' + key.slice(segment.index) + ']';
     }
 
     return parseObject(keys, val, options);
@@ -425,7 +425,7 @@ var has = Object.prototype.hasOwnProperty;
 var hexTable = (function () {
     var array = [];
     for (var i = 0; i < 256; ++i) {
-        array[array.length] = '%' + ((i < 16 ? '0' : '' + i.toString(16)).toUpperCase());
+        array[array.length] = '%' + ((i < 16 ? '0' : '') + i.toString(16)).toUpperCase();
     }
 
     return array;
