@@ -18,3 +18,4 @@ lib-cov
 complexity.md
 tests.tap
 dist/*
+.npmignore
