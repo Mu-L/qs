@@ -1,3 +1,8 @@
+## **6.1.3**
+- [Robustness] avoid `.push`, use `void`
+- [readme] clarify `parseArrays` and `arrayLimit` documentation (#543)
+- [readme] replace travis CI badge with shields.io check-runs badge
+
 ## **6.1.2**
 - [Fix] follow `allowPrototypes` option during merge (#201, #200)
 - [Fix] chmod a-x
