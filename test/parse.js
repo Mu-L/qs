@@ -1229,6 +1229,34 @@ test('`duplicates` option', function (t) {
         'duplicates: last'
     );
 
+    t.test('bracket notation always combines regardless of duplicates', function (st) {
+        st.deepEqual(
+            qs.parse('a=1&a=2&b[]=1&b[]=2', { duplicates: 'last' }),
+            { a: '2', b: ['1', '2'] },
+            'duplicates last: unbracketed takes last, bracketed combines'
+        );
+
+        st.deepEqual(
+            qs.parse('b[]=1&b[]=2', { duplicates: 'last' }),
+            { b: ['1', '2'] },
+            'duplicates last: bracketed always combines'
+        );
+
+        st.deepEqual(
+            qs.parse('b[]=1&b[]=2', { duplicates: 'first' }),
+            { b: ['1', '2'] },
+            'duplicates first: bracketed always combines'
+        );
+
+        st.deepEqual(
+            qs.parse('a=1&a=2&b[]=1&b[]=2', { duplicates: 'first' }),
+            { a: '1', b: ['1', '2'] },
+            'duplicates first: unbracketed takes first, bracketed combines'
+        );
+
+        st.end();
+    });
+
     t.end();
 });
 
