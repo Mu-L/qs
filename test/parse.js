@@ -784,27 +784,55 @@ test('parse()', function (t) {
 
     t.test('add keys to objects', function (st) {
         st.deepEqual(
-            qs.parse('a[b]=c&a=d'),
+            qs.parse('a[b]=c&a=d', { strictMerge: false }),
             { a: { b: 'c', d: true } },
             'can add keys to objects'
         );
 
         st.deepEqual(
-            qs.parse('a[b]=c&a=toString'),
+            qs.parse('a[b]=c&a=toString', { strictMerge: false }),
             { a: { b: 'c' } },
             'can not overwrite prototype'
         );
 
         st.deepEqual(
-            qs.parse('a[b]=c&a=toString', { allowPrototypes: true }),
+            qs.parse('a[b]=c&a=toString', { strictMerge: false, allowPrototypes: true }),
             { a: { b: 'c', toString: true } },
             'can overwrite prototype with allowPrototypes true'
         );
 
         st.deepEqual(
-            qs.parse('a[b]=c&a=toString', { plainObjects: true }),
+            qs.parse('a[b]=c&a=toString', { strictMerge: false, plainObjects: true }),
             { __proto__: null, a: { __proto__: null, b: 'c', toString: true } },
             'can overwrite prototype with plainObjects true'
+        );
+
+        st.end();
+    });
+
+    t.test('strictMerge wraps object and primitive into an array', function (st) {
+        st.deepEqual(
+            qs.parse('a[b]=c&a=d'),
+            { a: [{ b: 'c' }, 'd'] },
+            'object then primitive produces array'
+        );
+
+        st.deepEqual(
+            qs.parse('a=d&a[b]=c'),
+            { a: ['d', { b: 'c' }] },
+            'primitive then object produces array'
+        );
+
+        st.deepEqual(
+            qs.parse('a[b]=c&a=toString'),
+            { a: [{ b: 'c' }, 'toString'] },
+            'prototype-colliding value is preserved in array'
+        );
+
+        st.deepEqual(
+            qs.parse('a[b]=c&a=toString', { plainObjects: true }),
+            { __proto__: null, a: [{ __proto__: null, b: 'c' }, 'toString'] },
+            'plainObjects preserved in array wrapping'
         );
 
         st.end();
