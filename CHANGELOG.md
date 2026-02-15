@@ -1,3 +1,7 @@
+## **6.15.0**
+- [New] `parse`: add `strictMerge` option to wrap object/primitive conflicts in an array (#425, #122)
+- [Fix] `duplicates` option should not apply to bracket notation keys (#514)
+
 ## **6.14.2**
 - [Fix] `parse`: mark overflow objects for indexed notation exceeding `arrayLimit` (#546)
 - [Fix] `arrayLimit` means max count, not max index, in `combine`/`merge`/`parseArrayValue`
